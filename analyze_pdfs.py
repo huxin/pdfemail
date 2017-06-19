@@ -5,6 +5,8 @@ import sys
 import hashlib
 import shutil
 
+import email_from_pdf
+
 if len(sys.argv) != 2:
     print "Usage:", sys.argv[0], "directory"
     exit(1)
@@ -21,6 +23,8 @@ def load_processed_md5():
 
 processed_md5 = set()
 
+emailf = open('emails.lst', 'w')
+invalidf = open('invalid_emails.lst', 'w')
 
 
 def AnalyzePdf(pdffile):
@@ -29,21 +33,28 @@ def AnalyzePdf(pdffile):
 
     if md5 in processed_md5:
         # move to duplicate directory
+        print "duplicate:", md5
         shutil.move(pdffile, os.path.join(dup_dir, md5+'_'+pdffile))
         return
 
-    # run pdftotext to convert it to text
-    textfname = "tmp.txt"
-    cmd = "/usr/local/bin/pdftotext '" + pdffile + "' " + textfname
-    os.system(cmd)
 
     # read through txt files and identify potential emails
+    emails, invalid_emails = email_from_pdf.analyze(pdffile)
 
 
+    newname = md5
+    if len(emails) > 0:
+        newname += "_"+'_'.join(list(emails))
+
+        print >>emailf, "\n".join(list(emails))
+
+    if len(invalid_emails) > 0:
+        print >>invalidf, "\n".join(list(invalid_emails))
+
+    print newname+'.pdf'
+    shutil.move(pdffile, newname+'.pdf')
 
     processed_md5.add(md5)
-
-
 
 
 for f in os.listdir('.'):
@@ -52,4 +63,5 @@ for f in os.listdir('.'):
         continue
     AnalyzePdf(f)
 
-    break
+emailf.close()
+invalidf.close()
