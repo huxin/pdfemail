@@ -11,17 +11,25 @@ if len(sys.argv) != 2:
     print "Usage:", sys.argv[0], "directory"
     exit(1)
 
+def load_processed_md5():
+    # TODO: read history for processed md5s, so we don't do duplicate work
+    d = "analyzed"
+    ret = set()
+    for f in os.listdir(d):
+        md5 = f.split('.')[0].split('_')[0]
+        ret.add(md5)
+
+    return ret
+
+processed_md5 = load_processed_md5()
+
 os.chdir(sys.argv[1])
 
 dup_dir = "dup"
 if not os.path.exists(dup_dir):
     os.mkdir(dup_dir)
 
-def load_processed_md5():
-    # TODO: read history for processed md5s, so we don't do duplicate work
-    return set()
 
-processed_md5 = set()
 
 emailf = open('emails.lst', 'w')
 invalidf = open('invalid_emails.lst', 'w')
