@@ -34,12 +34,19 @@ def comprehensive(content):
     content_nonewline = content.replace("\n", "").replace("\r", "")
     ei_lst.append(analyze_for_emails(content_nonewline))
 
+    try:
+        content_utf8 = content.decode('utf-8')
+        ei_lst.append(analyze_for_emails(content_utf8))
+    except:
+        print "Cannot decode utf8"
+        content_utf8 = content
 
-    content_utf8 = content.decode('utf-8')
-    ei_lst.append(analyze_for_emails(content_utf8))
-
-    normal = unicodedata.normalize('NFKD', content_utf8)
-    ei_lst.append(analyze_for_emails(normal))
+    try:
+        normal = unicodedata.normalize('NFKD', content_utf8)
+        ei_lst.append(analyze_for_emails(normal))
+    except:
+        print "Normalization wrong"
+        normal = content_utf8
 
     normal_nonewline = normal.replace('\n', '').replace("\r", '')
     ei_lst.append(analyze_for_emails(normal_nonewline))
@@ -67,5 +74,19 @@ if __name__ == "__main__":
 
 
     content = open(sys.argv[1]).read()
-    different_processes(content)
+    #different_processes(content)
+    e, i = comprehensive(content)
+    email_f = sys.argv[1] + '.email'
+    print "\nEmail:", email_f
+
+    with open(email_f, 'w') as f:
+        for email in e:
+            print>> f,  email
+
+    invalid_f = sys.argv[1] + ".invalid"
+    print "\nInvalid:", invalid_f
+
+    with open(invalid_f, 'w') as f:
+        for email in i:
+            print >>f, email
 

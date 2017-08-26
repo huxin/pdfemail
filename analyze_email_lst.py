@@ -22,8 +22,32 @@ if os.path.exists(step1_file):
 
 outf = open(step1_file, 'w')
 good = []
-valid_suffix = ['.cn', '.com', '.net' '.edu']
+valid_suffix = ['.cn', '.com', '.edu', '.net', '.org']
+
+import re
+def fix_common_mistakes(e):
+    e = re.sub(r'(\d+)$', '', e)
+
+    com_err = ['.coin', '.corn', '.corn','.tom','.comm', '.coml',
+               '.eom', '.conl', '.con', '.comp', '.jom', '.col', '.eonl',
+               '.oom', '.odm', '.cob', '.cem', '.corll', '.coill', '.com.']
+    for err in com_err:
+        if e.endswith(err) or e.find(err+'.') != -1:
+            e = e.replace(err, '.com')
+
+    cn_err = ['.ca', '.en']
+    for err in cn_err:
+        if e.endswith(err):
+            e = e.replace(err, '.cn')
+
+    if e.startswith('china.'):
+        e = e.replace('china.', '')
+
+    return e
+
+
 for e in email_set:
+    e = fix_common_mistakes(e)
     valid = False
     for vs in valid_suffix:
         if e.endswith(vs):
@@ -44,8 +68,37 @@ os.system('subl ' + step1_file)
 raw_input("Press any key to continue")
 
 
+print "\nStep1.5: containing analysis"
+step1_5_file = email_f + '.step.1.5'
+outf = open(step1_5_file, 'w')
+email_set = set([l.strip() for l in open(step1_file, 'r')])
+no_contain_lst = []
+
+for e in email_set:
+    contain_lst = []
+    for e2 in email_set:
+        if e == e2:
+            continue
+
+        if e2.endswith(e):
+            contain_lst.append(e2)
+
+    if len(contain_lst) ==0:
+        no_contain_lst.append(e)
+    else:
+        print >> outf, e, " ".join(contain_lst)
+
+print >>outf, "\n"
+print >>outf, "\n".join(no_contain_lst)
+outf.close()
+print "Step 1.5 file {} generated, please fix duplicate analysis emails".format(step1_5_file)
+os.system('subl ' + step1_5_file)
+raw_input("Press any key to continue")
+
+
+
 print "\nStep2, remove all opened and sent email"
-email_list = [e.strip().lower() for e in open(step1_file, 'r')]
+email_list = [e.strip().lower() for e in open(step1_5_file, 'r')]
 email_set = set(email_list)
 print "{} has {} emails, {} unique".format(step1_file, len(email_list), len(email_set))
 
