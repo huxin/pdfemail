@@ -27,26 +27,69 @@ valid_suffix = ['.cn', '.com', '.edu', '.net', '.org']
 import re
 def fix_common_mistakes(e):
     e = re.sub(r'(\d+)$', '', e)
+    while e.startswith('.'):
+        e = e[1:]
 
-    com_err = ['.coin', '.corn', '.corn','.tom','.comm', '.coml',
-               '.eom', '.conl', '.con', '.comp', '.jom', '.col', '.eonl',
-               '.oom', '.odm', '.cob', '.cem', '.corll', '.coill', '.com.']
+
+    com_err = ['.coin', '.corn', '.corn','.tom','.comm', '.coml', 'toni', '.om', '.cotll', '.oom',
+               '.eom', '.conl', '.con', '.comp', '.jom', '.col', '.eonl', '.cola', '.comdoi'
+               '.oom', '.odm', '.cob', '.cem', '.corll', '.coill', '.coln', '.com.', 'cornl', '.coi']
     for err in com_err:
         if e.endswith(err) or e.find(err+'.') != -1:
             e = e.replace(err, '.com')
 
-    cn_err = ['.ca', '.en']
+    cn_err = ['.ca', '.en', '.crl', '.cndoi']
     for err in cn_err:
         if e.endswith(err):
             e = e.replace(err, '.cn')
 
     if e.startswith('china.'):
+        print e, '->',
         e = e.replace('china.', '')
+        print e
+
+    fixes = {'hotmaii': 'hotmail',
+             'l9': '19',
+             'n9': 'ng',
+             'maii.': 'mail.',
+             'l05@': '105@',
+             'j63.com': '163.com',
+             'yalloo.': 'yahoo.',
+             '@rip.': '@vip.'}
+    for k, v in fixes.items():
+        if e.find(k) != -1:
+            new_e = e.replace(k, v)
+            i = raw_input('Change {} -> {}?'.format(e, new_e)).strip().lower()
+            if i != 'n':
+                e = new_e
+
+    if e.find('-') != -1:
+        new_e = e.replace('-', '')
+        i = raw_input('Change {} -> {}?'.format(e, new_e)).strip().lower()
+        if i != 'n':
+            e = new_e
+        if len(i) > 1:
+            e = i
+
+
+    if e.startswith('emai') or e.startswith('mail'):
+        new_e = raw_input("correct: {}:".format(e))
+        if len(new_e):
+            e = new_e
+
+    zip = ['110004', '230032']
+    for z in zip:
+        if e.startswith(z):
+            e = e.replace(z, '')
 
     return e
 
 
 for e in email_set:
+    if e.endswith('psu.edu'):
+        continue
+    if e.find('wensen') != -1:
+        continue
     e = fix_common_mistakes(e)
     valid = False
     for vs in valid_suffix:
