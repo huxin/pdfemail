@@ -33,7 +33,7 @@ def fix_common_mistakes(e):
 
     com_err = ['.coin', '.corn', '.corn','.tom','.comm', '.coml', 'toni', '.om', '.cotll', '.oom',
                '.eom', '.conl', '.con', '.comp', '.jom', '.col', '.eonl', '.cola', '.comdoi'
-               '.oom', '.odm', '.cob', '.cem', '.corll', '.coill', '.coln', '.com.', 'cornl', '.coi']
+               '.oom', '.odm', '.cob', '.cem', '.ocm', '.corll', '.coill', '.coln', '.com.', 'cornl', '.coi']
     for err in com_err:
         if e.endswith(err) or e.find(err+'.') != -1:
             e = e.replace(err, '.com')

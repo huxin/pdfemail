@@ -59,8 +59,8 @@ def AnalyzePdf(pdffile):
     if len(invalid_emails) > 0:
         print >>invalidf, "\n".join(list(invalid_emails))
 
-    print newname+'.pdf'
-    shutil.move(pdffile, newname+'.pdf')
+    print newname[:100]+'.pdf'
+    shutil.move(pdffile, newname[:100]+'.pdf')
 
     processed_md5.add(md5)
 
