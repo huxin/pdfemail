@@ -72,6 +72,7 @@ credentials = get_credentials()
 http = credentials.authorize(httplib2.Http())
 service = discovery.build('gmail', 'v1', http=http)
 sender_email = get_email_address(service)
+print "Successfully get sender email: {}".format(sender_email)
 to = 'huxinsmail@gmail.com'
 history_file = "/tmp/prev_pdf_cnt"
 def create_service_send_email(subject, body):
@@ -120,29 +121,34 @@ def main():
 
     prev_ts, prev_cnt, alert_times = get_history_cnt()
 
-    print "Previous: {} pdfs at {} [{}]\n".format(prev_cnt, prev_ts, time.ctime(prev_ts))
-    print "Current:  {} pdfs at {} [{}]\n".format(cur_cnt, prev_ts, time.ctime(cur_ts))
+    print "Previous: {} pdfs at {} [{}]".format(prev_cnt, prev_ts, time.ctime(prev_ts))
+    print "Current:  {} pdfs at {} [{}]".format(cur_cnt, prev_ts, time.ctime(cur_ts))
 
 
     # determine if we want to send out an alert
     if prev_cnt == cur_cnt:
         # send out an alert
-        diff = cur_ts-prev_ts
-        subject = "No new pdf for {} seconds".format(diff)
-        body = "[Alert] there is no new pdf generated in {} minutes\n".format(diff)
-        body += "Previous: {} pdfs at {} [{}]\n".format(prev_cnt, prev_ts, time.ctime(prev_ts))
-        body += "Current:  {} pdfs at {} [{}]\n".format(cur_cnt, prev_ts, time.ctime(cur_ts))
-        body += "Alert history: {}\m".format(alert_times)
-        create_service_send_email(subject, body)
-        alert_times.append(cur_ts)
-
-    # save current progress
-    if cur_cnt != prev_cnt:
-        save_history_cnt(cur_cnt, alert_times)
+        if len(alert_times) > 0 and (cur_ts - sorted(alert_times)[-1] < 3600):
+            print "Already alerted within last hour, do not alert"
+        else:
+            diff = cur_ts-prev_ts
+            subject = "No new pdf for {} seconds".format(diff)
+            body = "[Alert] there is no new pdf generated in {} seconds\n".format(diff)
+            body += "Previous: {} pdfs at {} [{}]\n".format(prev_cnt, prev_ts, time.ctime(prev_ts))
+            body += "Current:  {} pdfs at {} [{}]\n".format(cur_cnt, prev_ts, time.ctime(cur_ts))
+            body += "Alert history: {}\n".format(alert_times)
+            create_service_send_email(subject, body)
+            alert_times.append(cur_ts)
+            save_history_cnt(cur_cnt, alert_times)
+    else:
+        print "PDF count changed, No alert sent!"
+        save_history_cnt(cur_cnt, [])
 
 
 
 if __name__ == "__main__":
+    print
+    print time.ctime()
     try:
         main()
     except Exception as e:
