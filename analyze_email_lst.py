@@ -31,8 +31,8 @@ def fix_common_mistakes(e):
         e = e[1:]
 
 
-    com_err = ['.coin', '.corn', '.corn','.tom','.comm', '.coml', 'toni', '.om', '.cotll', '.oom',
-               '.eom', '.conl', '.con', '.comp', '.jom', '.col', '.eonl', '.cola', '.comdoi'
+    com_err = ['.coin', '.coni', '.aom', '.colll', '.coil', '.corn', '.corn','.tom','.comm', '.coml', 'toni', '.om', '.cotll', '.oom', '.coiii', '.conr',
+               '.eom', '.conl', '.con', '.comp', '.jom', '.col', '.eonl', '.cola', '.comdoi', '.c0m', '.cor', '..com', '.coiti',
                '.oom', '.odm', '.cob', '.cem', '.ocm', '.corll', '.coill', '.coln', '.com.', 'cornl', '.coi']
     for err in com_err:
         if e.endswith(err) or e.find(err+'.') != -1:
@@ -72,7 +72,17 @@ def fix_common_mistakes(e):
             e = i
 
 
-    if e.startswith('emai') or e.startswith('mail'):
+    prefixes = ['email.', 'email', 'emai', 'emai.', 'mail.', 'mail', 'e.mail.', 'e.mail']
+    for p in prefixes:
+        if e.startswith(p):
+            new_e = e.replace(p, '')
+            i = raw_input('Change {} -> {}?'.format(e, new_e)).strip().lower()
+            if i != 'n':
+                e = new_e
+            if len(i) > 1:
+                e = i
+
+    if e.startswith('emai') or e.startswith('mail') or e.startswith('e.mai'):
         new_e = raw_input("correct: {}:".format(e))
         if len(new_e):
             e = new_e
