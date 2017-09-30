@@ -16,7 +16,15 @@ from email.mime.text import MIMEText
 from email.header import Header
 from email.utils import parseaddr, formataddr
 from apiclient import errors
+import pytz
+from datetime import datetime
 
+def get_current_pst_time():
+    utc = pytz.utc
+    loc_dt = utc.localize(datetime.now())
+    pacific = pytz.timezone('US/Pacific')
+    fmt = '[%m/%d %H:%M %Z]'
+    return loc_dt.astimezone(pacific).strftime(fmt)
 
 
 parser = argparse.ArgumentParser(parents=[tools.argparser])
@@ -132,10 +140,10 @@ def main():
             print "Already alerted within last hour, do not alert"
         else:
             diff = cur_ts-prev_ts
-            subject = "No new pdf for {} seconds".format(diff)
+            subject = "{} ({}) No new pdf for {} seconds".format(get_current_pst_time(), cur_cnt, diff)
             body = "[Alert] there is no new pdf generated in {} seconds\n".format(diff)
             body += "Previous: {} pdfs at {} [{}]\n".format(prev_cnt, prev_ts, time.ctime(prev_ts))
-            body += "Current:  {} pdfs at {} [{}]\n".format(cur_cnt, prev_ts, time.ctime(cur_ts))
+            body += "Current:  {} pdfs at {} [{}]\n".format(cur_cnt, prev_ts, get_current_pst_time())
             body += "Alert history: {}\n".format(alert_times)
             create_service_send_email(subject, body)
             alert_times.append(cur_ts)
@@ -153,7 +161,7 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         import traceback
-        subject = "Exception in PDFmonitor:" + str(e)
+        subject = "Exception in PDFmonitor:" + str(e) + ' @ ' + get_current_pst_time()
         body = traceback.format_exc()
         create_service_send_email(subject, body)
 

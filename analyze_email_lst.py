@@ -100,6 +100,9 @@ for e in email_set:
         continue
     if e.find('wensen') != -1:
         continue
+    if e.find('yaoyao.fu923') != -1 or e.startswith('yuf119') or e == 'yaoyaohuxin@gmail.com':
+        continue
+
     e = fix_common_mistakes(e)
     valid = False
     for vs in valid_suffix:

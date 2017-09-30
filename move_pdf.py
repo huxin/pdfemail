@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 import sys
 import shutil
@@ -19,6 +20,7 @@ for f in os.listdir(src_dir):
     shutil.move(src_full, dst_full)
     cnt += 1
 
-    if cnt >= mov_cnt:
+    if cnt >= int(mov_cnt):
         break
 
+print "Moved:", cnt
